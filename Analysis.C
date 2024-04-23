@@ -6,6 +6,7 @@
 #include <TGraph.h>
 #include <iostream>
 #include <string>
+#include <algorithm>
 
 void Analysis::Loop(std::string outputFileName)
 {
@@ -34,6 +35,7 @@ void Analysis::Loop(std::string outputFileName)
   //by  b_branchname->GetEntry(ientry); //read only this branch
 
   TFile* pulseFile = new TFile(outputFileName.c_str(),"recreate");
+  TGraph * grSnglPul[8];
   
   if (fChain == 0) return;
 
@@ -59,7 +61,7 @@ void Analysis::Loop(std::string outputFileName)
       //std::cout<<"  hori interval: "<<horizontal_interval<<std::endl;
 
       //Pulse analysis
-      TGraph * grSnglPul[8];
+      //TGraph * grSnglPul[8];
       for (int ich=0;ich<8; ich++){
 	grSnglPul[ich] = new TGraph();
 	auto chstr = std::to_string(ich);
@@ -68,9 +70,12 @@ void Analysis::Loop(std::string outputFileName)
 	for (int isamp=0;isamp<samples;isamp++){
 	  grSnglPul[ich]->SetPoint(isamp,(time[isamp] * 1e+9 - trigger_time),channels[ich][isamp]);
 	}
+	//channel loop
 	grSnglPul[ich]->Write();
+	Float_t ampchan = *std::max_element(channels[ich],channels[ich]+1024);
+	std::cout<<"  Channel "<<ich<<" max "<<ampchan<<std::endl;
       }
-      
+      //event loop      
    }
    pulseFile->Write();
    pulseFile->Close();

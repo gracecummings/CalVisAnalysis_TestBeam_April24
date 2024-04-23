@@ -10,7 +10,7 @@ def makeOutFile(descrip,ftype):
     if not os.path.exists(strpath):
         os.makedirs(strpath)
         
-    outFile = "testbeam_plots_run"+descrip+"_"+strdatetime+ftype
+    outFile = strpath+"testbeam_plots_run"+descrip+"_"+strdatetime+ftype
     return outFile
 
 parser = argparse.ArgumentParser()
@@ -22,11 +22,14 @@ if __name__ =="__main__":
 
     runnum = args.runnum
 
+    print("Checking run {0} in {1}".format(runnum,args.infile))
+    
     outFile = makeOutFile(str(runnum),".root")
 
     inChain = ROOT.TChain("tree")
     inChain.Add(args.infile)
 
+    print("Saving output in ",outFile)
     ROOT.gSystem.CompileMacro("Analysis.C","kfc")
     ROOT.gSystem.Load('Analysis_C')
     plotter = ROOT.Analysis(inChain)
